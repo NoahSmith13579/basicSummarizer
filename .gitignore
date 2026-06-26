@@ -72,3 +72,12 @@ out/
 # Windows
 Thumbs.db
 
+# Misc
+HELP.md
+classpath-utf8.txt
+classpath.txt
+*.yaml
+*.yml
+eslint.config.js
+summarizer.jsx
+SummarizerApp.tsx
