@@ -1,0 +1,29 @@
+:root {
+    --bg-primary: #0f1117;
+    --bg-secondary: #13151f;
+    --bg-card: #1a1d27;
+    --bg-filter: #6C63FF18;
+    --bg-inputbase: #1A1D27;
+    --bg-card-selected: #1E2130;
+    --bg-card-hovered: #1C1F2C;
+    --bg-border-selected: #6C63FF60;
+    --bg-border-hovered: #35394d;
+    --border: #252836;
+    --border-alt: #35394D;
+    --accent: #6c63ff;
+    --accent-logo-background: #6c63ff20;
+    --accent-logo-border: #6c63ff40;
+    --accent-trans: #6c63ff50;
+    --accent-light: #9d97ff;
+
+    --text-primary: #f0eef8;
+    --text-secondary: #c9c7db;
+    --text-muted: #8b8fa8;
+
+    --active-button: #6C63FF18;
+
+    --text-summary: #C9C7DB;
+    --url: #3ECFCF;
+    --button-background: #6C63FF14;
+
+}

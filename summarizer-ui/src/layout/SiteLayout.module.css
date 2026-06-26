@@ -1,0 +1,25 @@
+@import "src/styles/globals.css";
+
+.container{
+    display: grid;
+    grid-template-columns: 280px 1fr 380px;
+    height: 100vh;
+    overflow: hidden;
+    /*background: #fafafa;*/
+}
+.sidebar{
+    border-right: 1px solid #ddd;
+    overflow-y: auto;
+    padding: 1rem;
+    /*background: #fff;*/
+}
+.summary{
+    overflow-y: auto;
+    padding: 1.5rem;
+}
+.input{
+    border-left: 1px solid #ddd;
+    overflow-y: auto;
+    padding: 1rem;
+    /*background: #fff;*/
+}

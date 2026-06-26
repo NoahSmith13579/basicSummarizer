@@ -1,0 +1,60 @@
+.container{
+    display: flex;
+    flex-direction: column;
+}
+.containerEmpty{
+    align-items: center;
+    justify-content: center;
+    height: 60vh;
+    gap: 12px;
+}
+.emptySvg{
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background-color: var(--bg-card);
+    border: 1px soild var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.emptyText{
+    font-size: 14px;
+    color: var(--text-muted);
+    margin: 0;
+}
+.containerFull{
+    gap: 12px;
+}
+.containerFlex{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+.containerTitle{
+    font-size: 13px;
+    color: var(--text-muted);
+}
+.summary
+.summaryCardContainer{
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    border-radius: 14px;
+    padding: 18px 20px 16px;
+    transition: all 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    user-select: none;
+}
+.summaryCardContainerSelected{
+    background: var(--bg-card-selected);
+    border: 1px solid var(--bg-border-selected);
+    box-shadow: 0 0 0 1px var(--accent-logo-background);
+}
+.summaryCardContainerHovered{
+    background: var(--bg-card-hovered);
+    border: 1px solid var(--bg-card-selected);
+    box-shadow: 0 4px 24px rgba(108, 99, 255, 0.06);
+}

@@ -1,0 +1,141 @@
+.container{
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    height: 100%;
+}
+
+.topRow{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+.newButton{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 12px;
+    cursor: pointer;
+}
+.metaBlock{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.sourceLabel{
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.sourceLength{
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: 20px;
+    background: var(--border);
+    border: 1px solid var(--border-alt);
+    font-weight: 500;
+    font-size: 11px;
+}
+
+.sourceId{
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: 20px;
+    background: var(--border);
+    border: 1px solid var(--border-alt);
+    font-size: 11px;
+}
+
+.grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.gridContainer{
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 10px 12px;
+}
+
+.gridUnit{
+    font-size: 14px;
+    font-weight: 600;
+
+}
+
+.gridLabel{
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+.sourceURL{
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--url);
+    text-decoration: none;
+    margin-bottom: 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.horizontal{
+    height: 1px;
+    background: var(--border);
+}
+
+.summaryContainer{
+    flex: 1;
+    overflow-y: auto;
+}
+
+.summaryTitle{
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin: 0 0 10px;
+}
+
+.summaryText{
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--text-summary);
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+.footer{
+    border-top: 1px solid var(--border);
+    margin-top: 16px;
+}
+
+.footerText{
+    font-size: 11px;
+    color: var(--text-muted);
+}

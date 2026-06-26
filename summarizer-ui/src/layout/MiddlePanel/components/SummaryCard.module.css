@@ -1,0 +1,135 @@
+.summaryCardContainer{
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    border-radius: 14px;
+    padding: 18px 20px 16px;
+    transition: all 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    user-select: none;
+}
+.summaryCardContainerSelected{
+    background: var(--bg-card-selected);
+    border: 1px solid var(--bg-border-selected);
+    box-shadow: 0 0 0 1px var(--accent-logo-background);
+}
+.summaryCardContainerHovered{
+    background: var(--bg-card-hovered);
+    border: 1px solid var(--bg-card-selected);
+    box-shadow: 0 4px 24px rgba(108, 99, 255, 0.06);
+}
+
+.topRowContainer{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+.topRowLabelContainer{
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.sourceLabel{
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+.lengthLabel{
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: 20px;
+    background: var(--border);
+    border: 1px solid var(--border-alt);
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 500;
+}
+.arcContainer{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+}
+.arcSpan{
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+}
+.text p{
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--text-summary);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+.url a{
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--url);
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bottomRowContainer{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.statsContainer{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.buttonContainer{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.date{
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-right: 4px;
+}
+.viewButton{
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--accent-trans);
+    background: var(--button-background);
+    color: var(--accent);
+    cursor: pointer;
+    font-size: 12px;
+}
+.deleteButton{
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
