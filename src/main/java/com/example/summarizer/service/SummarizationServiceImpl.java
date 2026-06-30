@@ -4,20 +4,13 @@ package com.example.summarizer.service;
 import com.example.summarizer.enums.SourceType;
 import com.example.summarizer.enums.SummaryLength;
 
-import com.example.summarizer.exception.InvalidInputException;
-import com.example.summarizer.exception.ResourceNotFoundException;
 import com.example.summarizer.interfaces.DocumentParsingService;
 import com.example.summarizer.interfaces.SummarizationService;
 import com.example.summarizer.interfaces.WebScrapingService;
 import com.example.summarizer.model.SavedSummary;
-import com.example.summarizer.model.User;
 
-import com.example.summarizer.repository.SavedSummaryRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,16 +28,14 @@ import java.util.stream.Collectors;
 public class SummarizationServiceImpl implements SummarizationService {
 
     private final ChatClient chatClient;
-    private final SavedSummaryRepository summaryRepository;
     private final DocumentParsingService documentParsingService;
     private final WebScrapingService webScrapingService;
 
     public SummarizationServiceImpl(ChatClient.Builder chatClientBuilder,
-                                    SavedSummaryRepository summaryRepository,
+
                                     DocumentParsingService documentParsingService,
                                     WebScrapingService webScrapingService){
         this.chatClient = chatClientBuilder.build();
-        this.summaryRepository = summaryRepository;
         this.documentParsingService = documentParsingService;
         this.webScrapingService = webScrapingService;
     }
@@ -77,15 +68,12 @@ public class SummarizationServiceImpl implements SummarizationService {
     }
 
     @Override
-    public SavedSummary summarizeAndSave(User user, String text, SummaryLength length) {
-        // user may be null for anonymous/unauthenticated requests
-        log.info("Summarizing and saving for user: {}",
-                user != null ? user.getUsername() : "anonymous");
+    public SavedSummary summarizeAndSave(String text, SummaryLength length) {
+
 
         String summary = summarize(text, length);
 
         SavedSummary saved = new SavedSummary();
-        saved.setUser(user);          // null is valid — persisted as no FK
         saved.setOriginalText(text);
         saved.setSummary(summary);
         saved.setSourceType(SourceType.TEXT.toString());
@@ -94,9 +82,7 @@ public class SummarizationServiceImpl implements SummarizationService {
         saved.setSummaryLength(length.toString());
         saved.setCreatedAt(LocalDateTime.now());
 
-        SavedSummary result = summaryRepository.save(saved);
-        log.info("Saved summary with ID: {}", result.getId());
-        return result;
+        return saved;
     }
 
     // ============================================================
@@ -104,7 +90,7 @@ public class SummarizationServiceImpl implements SummarizationService {
     // ============================================================
 
     @Override
-    public SavedSummary summarizeFromFile(User user, MultipartFile file) throws Exception {
+    public SavedSummary summarizeFromFile(MultipartFile file) throws Exception {
         log.info("Summarizing file: {}", file.getOriginalFilename());
 
         // Parse file using Tika
@@ -120,7 +106,6 @@ public class SummarizationServiceImpl implements SummarizationService {
         }
 
         SavedSummary saved = new SavedSummary();
-        saved.setUser(user);
         saved.setOriginalText(text);
         saved.setSummary(summary);
         saved.setSourceType(SourceType.FILE.toString());
@@ -129,9 +114,8 @@ public class SummarizationServiceImpl implements SummarizationService {
         saved.setSummaryLength(SummaryLength.SHORT.toString());
         saved.setCreatedAt(LocalDateTime.now());
 
-        SavedSummary result = summaryRepository.save(saved);
-        log.info("File summarization saved with ID: {}", result.getId());
-        return result;
+
+        return saved;
     }
 
     // ============================================================
@@ -139,7 +123,7 @@ public class SummarizationServiceImpl implements SummarizationService {
     // ============================================================
 
     @Override
-    public SavedSummary summarizeFromUrl(User user, String url) throws IOException {
+    public SavedSummary summarizeFromUrl(String url) throws IOException {
         log.info("Summarizing URL: {}", url);
 
         // Extract content from URL using Jsoup
@@ -149,7 +133,6 @@ public class SummarizationServiceImpl implements SummarizationService {
         String summary = summarize(text, SummaryLength.SHORT);
 
         SavedSummary saved = new SavedSummary();
-        saved.setUser(user);
         saved.setOriginalText(text);
         saved.setSummary(summary);
         saved.setSourceType(SourceType.URL.toString());
@@ -159,9 +142,7 @@ public class SummarizationServiceImpl implements SummarizationService {
         saved.setSummaryLength(SummaryLength.SHORT.toString());
         saved.setCreatedAt(LocalDateTime.now());
 
-        SavedSummary result = summaryRepository.save(saved);
-        log.info("URL summarization saved with ID: {}", result.getId());
-        return result;
+        return saved;
     }
 
     // ============================================================
@@ -213,98 +194,22 @@ public class SummarizationServiceImpl implements SummarizationService {
     // ============================================================
     // 5. RETRIEVE SUMMARIES
     // ============================================================
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<SavedSummary> getUserSummaries(User user) {
-        log.info("Fetching summaries for user: {}", user.getUsername());
-        return summaryRepository.findByUserOrderByCreatedAtDesc(user);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public SavedSummary getSummary(Long id, User user) {
-        log.info("Fetching summary: {} for user: {}", id, user.getUsername());
-
-        return summaryRepository.findByIdAndUser(id, user)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Summary not found or you don't have permission to access it"));
-    }
+    // Handled on frontend
 
     // ============================================================
     // 6. DELETE SUMMARY
     // ============================================================
-
-    @Override
-    public void deleteSummary(Long id, User user) {
-        log.info("Deleting summary: {} for user: {}", id, user.getUsername());
-
-        SavedSummary summary = summaryRepository.findByIdAndUser(id, user)
-                .orElseThrow(() -> new ResourceNotFoundException("Summary not found"));
-
-        summaryRepository.delete(summary);
-        log.info("Summary deleted: {}", id);
-    }
+    // Handled on frontend
 
     // ============================================================
     // 7. FILTER SUMMARIES
     // ============================================================
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<SavedSummary> getUserSummariesBySourceType(User user, String sourceType) {
-        log.info("Filtering summaries by source: {} for user: {}", sourceType, user.getUsername());
-
-        try {
-            SourceType type = SourceType.valueOf(sourceType.toUpperCase());
-            return summaryRepository.findByUserAndSourceType(user, type.toString());
-        } catch (IllegalArgumentException e) {
-            log.warn("Invalid source type: {}", sourceType);
-            throw new InvalidInputException("Invalid source type. Must be TEXT, FILE, or URL");
-        }
-    }
+    // Handled on frontend
 
     // ============================================================
     // 8. STATISTICS
     // ============================================================
-
-    @Override
-    @Transactional(readOnly = true)
-    public Map<String, Object> getUserStatistics(User user) {
-        log.info("Calculating statistics for user: {}", user.getUsername());
-
-        List<SavedSummary> summaries = summaryRepository.findByUser(user);
-
-        long totalSummaries = summaries.size();
-        long totalOriginalChars = summaries.stream()
-                .mapToLong(s -> s.getOriginalText().length())
-                .sum();
-        long totalSummaryChars = summaries.stream()
-                .mapToLong(s -> s.getSummary().length())
-                .sum();
-
-        double savedChars = totalOriginalChars - totalSummaryChars;
-        double avgCompression = totalSummaries > 0
-                ? (savedChars / totalOriginalChars) * 100
-                : 0;
-
-        // Estimate reading time saved (average 200 words per minute)
-        int avgReadingSpeed = 200;
-        long savedWords = summaries.stream()
-                .mapToLong(s -> s.getOriginalWordCount() - s.getSummaryWordCount())
-                .sum();
-        double minutesSaved = savedWords / (double) avgReadingSpeed;
-
-        Map<String, Object> stats = new LinkedHashMap<>();
-        stats.put("totalSummaries", totalSummaries);
-        stats.put("totalOriginalCharacters", totalOriginalChars);
-        stats.put("totalCharactersSaved", (long) savedChars);
-        stats.put("averageCompressionRatio", Math.round(avgCompression * 100.0) / 100.0);
-        stats.put("estimatedMinutesSaved", Math.round(minutesSaved * 100.0) / 100.0);
-        stats.put("totalSummarizations", totalSummaries);
-
-        return stats;
-    }
+    // Handled on frontend
 
     // ============================================================
     // HELPER METHODS
@@ -359,16 +264,18 @@ public class SummarizationServiceImpl implements SummarizationService {
     }
 
     private String createSummarizationPrompt(String text, SummaryLength length) {
-        return switch (length) {
+        String sizeClause = switch (length) {
             case TLDR -> String.format(
-                    "Summarize this in 1-2 sentences:\n\n%s", text);
+                    "Summarize this in 1-2 sentences");
             case SHORT -> String.format(
-                    "Summarize this in 3-5 sentences:\n\n%s", text);
+                    "Summarize this in 3-5 sentences");
             case MEDIUM -> String.format(
-                    "Summarize this in 5-10 sentences:\n\n%s", text);
+                    "Summarize this in 5-10 sentences");
             case DETAILED -> String.format(
-                    "Create a comprehensive summary (approximately 1/3 of original length):\n\n%s", text);
+                    "Create a comprehensive summary (approximately 1/3 of original length)");
         };
+        return String.format(sizeClause + "\nAlso the summary MUST be smaller than the text:\n\n%s", text);
+
     }
 
     private int wordCount(String text) {

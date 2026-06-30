@@ -6,16 +6,11 @@ import com.example.summarizer.dto.response.SummaryResponse;
 import com.example.summarizer.enums.SummaryLength;
 import com.example.summarizer.exception.InvalidInputException;
 import com.example.summarizer.exception.ResourceNotFoundException;
+import com.example.summarizer.interfaces.SummarizationControllerContract;
 import com.example.summarizer.model.SavedSummary;
-import com.example.summarizer.model.User;
 import com.example.summarizer.interfaces.SummarizationService;
-import com.example.summarizer.interfaces.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import jakarta.validation.Valid;
@@ -27,30 +22,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/summarize")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Summarization", description = "Content summarization endpoints")
-//@SecurityRequirement(name = "bearer-jwt")
-public class SummarizationController {
+public class SummarizationController implements SummarizationControllerContract{
 
     private final SummarizationService summarizationService;
-    private final UserService userService;
+
 
     // ============================================================
     // GLOBAL EXCEPTION HANDLER
@@ -94,19 +82,12 @@ public class SummarizationController {
     // ============================================================
     // 1. PLAIN TEXT SUMMARIZATION
     // ============================================================
-
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Summarize plain text")
     public ResponseEntity<SummaryResponse> summarize(
-            @Valid @RequestBody SummarizeRequest request,
-            @AuthenticationPrincipal UserDetails principal) {
-
-        User domainUser = principal != null
-                ? userService.getUserByUsername(principal.getUsername())
-                : null;
+            @Valid @RequestBody SummarizeRequest request) {
 
         SavedSummary saved = summarizationService.summarizeAndSave(
-                domainUser,
                 request.getText(),
                 request.getSummaryLength()
         );
@@ -121,17 +102,13 @@ public class SummarizationController {
     @PostMapping(value = "/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Summarize uploaded file (PDF, DOCX, TXT)")
     public ResponseEntity<SummaryResponse> summarizeFile(
-            @RequestParam("file") MultipartFile file,
-            @Parameter(hidden = true) Authentication authentication) throws Exception {
+            @RequestParam("file") MultipartFile file) throws Exception {
 
         if (file == null || file.isEmpty()) {
             throw new InvalidInputException("File cannot be empty");
         }
 
-        String username = authentication.getName();
-        User user = userService.getUserByUsername(username);
-
-        SavedSummary saved = summarizationService.summarizeFromFile(user, file);
+        SavedSummary saved = summarizationService.summarizeFromFile(file);
         return ResponseEntity.status(HttpStatus.CREATED).body(SummaryResponse.from(saved));
     }
 
@@ -142,8 +119,7 @@ public class SummarizationController {
     @PostMapping(value = "/url", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Summarize content from URL")
     public ResponseEntity<SummaryResponse> summarizeUrl(
-            @Valid @RequestBody UrlRequest request,
-            @Parameter(hidden = true) Authentication authentication) throws IOException {
+            @Valid @RequestBody UrlRequest request) throws IOException {
 
         String url = request.getUrl();
 
@@ -153,11 +129,7 @@ public class SummarizationController {
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
             throw new InvalidInputException("URL must start with http:// or https://");
         }
-
-        String username = authentication.getName();
-        User user = userService.getUserByUsername(username);
-
-        SavedSummary saved = summarizationService.summarizeFromUrl(user, url);
+        SavedSummary saved = summarizationService.summarizeFromUrl(url);
         return ResponseEntity.status(HttpStatus.CREATED).body(SummaryResponse.from(saved));
     }
 
@@ -183,93 +155,26 @@ public class SummarizationController {
     // ============================================================
     // 5. GET ALL SUMMARIES
     // ============================================================
-
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Get user's saved summaries")
-    public ResponseEntity<List<SummaryResponse>> getSummaries(
-            @Parameter(hidden = true) Authentication authentication) {
-
-        String username = authentication.getName();
-        User user = userService.getUserByUsername(username);
-
-        List<SummaryResponse> response = summarizationService.getUserSummaries(user)
-                .stream()
-                .map(SummaryResponse::from)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(response);
-    }
+    // Handled on frontend
 
     // ============================================================
     // 6. GET SPECIFIC SUMMARY
     // ============================================================
-
-    @GetMapping("/{id}")
-    @Operation(summary = "Get summary by ID")
-    public ResponseEntity<SummaryResponse> getSummary(
-            @PathVariable Long id,
-            @Parameter(hidden = true) Authentication authentication) {
-
-        String username = authentication.getName();
-        User user = userService.getUserByUsername(username);
-
-        SavedSummary summary = summarizationService.getSummary(id, user);
-        return ResponseEntity.ok(SummaryResponse.from(summary));
-    }
+    // Handled on frontend
 
     // ============================================================
     // 7. DELETE SUMMARY
     // ============================================================
-
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Delete summary")
-    public ResponseEntity<Void> deleteSummary(
-            @PathVariable Long id,
-            @Parameter(hidden = true) Authentication authentication) {
-
-        String username = authentication.getName();
-        User user = userService.getUserByUsername(username);
-
-        summarizationService.deleteSummary(id, user);
-        return ResponseEntity.noContent().build();
-    }
+    // Handled on frontend
 
     // ============================================================
     // 8. FILTER BY SOURCE
     // ============================================================
-
-    @GetMapping("/filter/{sourceType}")
-    @Operation(summary = "Filter by source type (TEXT, FILE, URL)")
-    public ResponseEntity<List<SummaryResponse>> filterBySource(
-            @PathVariable String sourceType,
-            @Parameter(hidden = true) Authentication authentication) {
-
-        String username = authentication.getName();
-        User user = userService.getUserByUsername(username);
-
-        List<SummaryResponse> response = summarizationService
-                .getUserSummariesBySourceType(user, sourceType)
-                .stream()
-                .map(SummaryResponse::from)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(response);
-    }
+    // Handled on frontend
 
     // ============================================================
     // 9. STATISTICS
     // ============================================================
-
-    @GetMapping("/stats/overview")
-    @Operation(summary = "Get statistics")
-    public ResponseEntity<?> getStatistics(
-            @Parameter(hidden = true) Authentication authentication) {
-
-        String username = authentication.getName();
-        User user = userService.getUserByUsername(username);
-
-        return ResponseEntity.ok(summarizationService.getUserStatistics(user));
-    }
 
     // ============================================================
     // HEALTH CHECK
