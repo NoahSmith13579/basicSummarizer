@@ -10,7 +10,6 @@ interface SiteLayoutProps {
 
 export default function SiteLayout({left, right, center}: SiteLayoutProps){
 
-    // TODO: General shape is correct
     return(
         <div className={styles.container}>
             {/*Side Bar*/}

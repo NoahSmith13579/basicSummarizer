@@ -1,7 +1,7 @@
 import type { SummaryListItem } from "../../../types/summaryListItem.ts";
-import truncate from "../../../utils/truncate.ts";
 import { SOURCE_META } from "../../../constants/sourceMeta.tsx";
 import styles from "../Sidebar.module.css";
+import {truncate} from "../../../utils/utils.ts";
 
 interface RecentListProps {
     summaries: SummaryListItem[];
