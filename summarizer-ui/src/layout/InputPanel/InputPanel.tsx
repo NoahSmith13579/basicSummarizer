@@ -6,10 +6,12 @@ import { LENGTH_LABEL } from "../../constants/length-label.ts";
 
 import type { AxiosResponse } from "axios";
 import { useSummaryService } from "../../utils/hooks.ts";
+import makeLog from "../../utils/logger.ts";
 
 interface InputPanelProps {
   onSubmit: (summary: SummaryResponse) => void;
 }
+const { log } = makeLog("InputPanel");
 
 export default function InputPanel({ onSubmit }: InputPanelProps) {
   type InputMode = "text" | "url" | "file";
@@ -23,18 +25,19 @@ export default function InputPanel({ onSubmit }: InputPanelProps) {
   const summaryService = useSummaryService();
 
   const handleSubmit = useCallback(async () => {
-    const content = mode === "text" ? text : mode === "url" ? url : "";
+    const content = mode === "text" ? text : mode === "url" ? url : "file";
 
     setLoading(true);
 
     let res: AxiosResponse<SummaryResponse>;
     try {
+      log("Starting summarization...");
       res = await summaryService.summarize({ mode, content, file, length });
+      log("Finished Summarization");
       onSubmit(res.data);
     } catch (e) {
       console.log(`Error when submitting: ${e}`);
     }
-
     setText("");
     setUrl("");
     setFile(undefined);
@@ -43,6 +46,7 @@ export default function InputPanel({ onSubmit }: InputPanelProps) {
     mode,
     text,
     url,
+    file,
     length,
     onSubmit,
     setFile,
@@ -114,8 +118,7 @@ export default function InputPanel({ onSubmit }: InputPanelProps) {
           <span>Click to upload a PDF or text file</span>
           <input
             type="file"
-            accept=".pdf,.text"
-            style={{ display: "none" }}
+            accept=".pdf,.txt,.doc,.docx"
             onChange={(e) => setFile(e.target.files?.[0])}
           />
         </label>
@@ -159,7 +162,9 @@ export default function InputPanel({ onSubmit }: InputPanelProps) {
         onClick={handleSubmit}
         disabled={
           loading ||
-          (mode === "text" ? text.trim().split(/\s+/).length < 10 : !url.trim())
+          (mode === "text" && text.trim().split(/\s+/).length < 10) ||
+          (mode === "url" && !url.trim()) ||
+          (mode === "file" && !file)
         }
         className={`${styles.submit} ${
           loading ? styles.loading : styles.notLoading

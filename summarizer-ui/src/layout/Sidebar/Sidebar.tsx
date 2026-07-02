@@ -32,7 +32,6 @@ export default function Sidebar({
     URL: summaries.filter((summary) => summary.sourceType == "URL").length,
     FILE: summaries.filter((summary) => summary.sourceType == "FILE").length,
   };
-  console.log("Sidebar summaries:", summaryResponses);
 
   return (
     <div className={styles.container}>

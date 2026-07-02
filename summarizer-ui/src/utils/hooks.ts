@@ -19,13 +19,13 @@ export const useSummaries = () => {
   useEffect(() => {
     // Load local first (instant)
     setSummaries(service.getLocalSummaries());
-    console.log("Hook subscribed");
+    //console.log("Hook subscribed");
     const unsubscribe = service.subscribe(() => {
-      console.log("Hook notified");
+      //console.log("Hook notified");
       setSummaries(service.getLocalSummaries());
     });
     return () => {
-      console.log("Hook unsubscribed");
+      //console.log("Hook unsubscribed");
       unsubscribe();
     };
   }, [service]);

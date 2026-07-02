@@ -1,6 +1,7 @@
 package com.example.summarizer.service;
 
 
+import com.example.summarizer.dto.response.SummaryResponse;
 import com.example.summarizer.enums.SourceType;
 import com.example.summarizer.enums.SummaryLength;
 
@@ -11,6 +12,7 @@ import com.example.summarizer.model.SavedSummary;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.cglib.core.Local;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -71,7 +75,15 @@ public class SummarizationServiceImpl implements SummarizationService {
 
 
     String summary = summarize(text, length);
-
+    // TODO: Dummy Save to avoid daily API limit
+//    SavedSummary saved = new SavedSummary();
+//    saved.setOriginalText(text);
+//    saved.setSummary("A quick overview of the topic with only the essential points.");
+//    saved.setSourceType(SourceType.TEXT.toString());
+//    saved.setOriginalWordCount(120);
+//    saved.setSummaryWordCount(22);
+//    saved.setSummaryLength(length.toString());
+//    saved.setCreatedAt(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
     SavedSummary saved = new SavedSummary();
     saved.setOriginalText(text);
     saved.setSummary(summary);

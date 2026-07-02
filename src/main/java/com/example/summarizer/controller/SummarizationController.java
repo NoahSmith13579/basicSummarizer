@@ -35,157 +35,159 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Summarization", description = "Content summarization endpoints")
-public class SummarizationController implements SummarizationControllerContract{
+public class SummarizationController implements SummarizationControllerContract {
 
-    private final SummarizationService summarizationService;
+  private final SummarizationService summarizationService;
 
 
-    // ============================================================
-    // GLOBAL EXCEPTION HANDLER
-    // ============================================================
+  // ============================================================
+  // GLOBAL EXCEPTION HANDLER
+  // ============================================================
 
-    @RestControllerAdvice
-    public static class GlobalExceptionHandler {
+  @RestControllerAdvice
+  public static class GlobalExceptionHandler {
 
-        @ExceptionHandler(ResourceNotFoundException.class)
-        public ResponseEntity<Map<String, String>> handleNotFound(ResourceNotFoundException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", ex.getMessage()));
-        }
-
-        @ExceptionHandler(InvalidInputException.class)
-        public ResponseEntity<Map<String, String>> handleInvalidInput(InvalidInputException ex) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("error", ex.getMessage()));
-        }
-        @ExceptionHandler(MethodArgumentNotValidException.class)
-        public ResponseEntity<?> handleValidation(MethodArgumentNotValidException ex) {
-            return ResponseEntity.badRequest().body(
-                    ex.getBindingResult().getAllErrors().get(0).getDefaultMessage()
-            );
-        }
-        @ExceptionHandler(Exception.class)
-        public ResponseEntity<?> handleException(Exception ex) {
-            ex.printStackTrace();
-            return ResponseEntity.status(500).body(ex.getMessage());
-        }
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleNotFound(ResourceNotFoundException ex) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND)
+              .body(Map.of("error", ex.getMessage()));
     }
 
-    // ==
-    // 0. Test Homepage
-    // ==
-    @GetMapping("/")
-    public String index(){
-        return "Test Homepage";
+    @ExceptionHandler(InvalidInputException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidInput(InvalidInputException ex) {
+      return ResponseEntity.badRequest()
+              .body(Map.of("error", ex.getMessage()));
     }
 
-    // ============================================================
-    // 1. PLAIN TEXT SUMMARIZATION
-    // ============================================================
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Summarize plain text")
-    public ResponseEntity<SummaryResponse> summarize(
-            @Valid @RequestBody SummarizeRequest request) {
-
-        SavedSummary saved = summarizationService.summarizeAndSave(
-                request.getText(),
-                request.getSummaryLength()
-        );
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(SummaryResponse.from(saved));
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleValidation(MethodArgumentNotValidException ex) {
+      return ResponseEntity.badRequest().body(
+              ex.getBindingResult().getAllErrors().get(0).getDefaultMessage()
+      );
     }
 
-    // ============================================================
-    // 2. FILE UPLOAD
-    // ============================================================
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleException(Exception ex) {
+      ex.printStackTrace();
+      return ResponseEntity.status(500).body(ex.getMessage());
+    }
+  }
 
-    @PostMapping(value = "/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Summarize uploaded file (PDF, DOCX, TXT)")
-    public ResponseEntity<SummaryResponse> summarizeFile(
-            @RequestParam("file") MultipartFile file) throws Exception {
+  // ==
+  // 0. Test Homepage
+  // ==
+  @GetMapping("/")
+  public String index() {
+    return "Test Homepage";
+  }
 
-        if (file == null || file.isEmpty()) {
-            throw new InvalidInputException("File cannot be empty");
-        }
+  // ============================================================
+  // 1. PLAIN TEXT SUMMARIZATION
+  // ============================================================
+  @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "Summarize plain text")
+  public ResponseEntity<SummaryResponse> summarize(
+          @Valid @RequestBody SummarizeRequest request) {
 
-        SavedSummary saved = summarizationService.summarizeFromFile(file);
-        return ResponseEntity.status(HttpStatus.CREATED).body(SummaryResponse.from(saved));
+    SavedSummary saved = summarizationService.summarizeAndSave(
+            request.getText(),
+            request.getSummaryLength()
+    );
+
+    return ResponseEntity.status(HttpStatus.CREATED).body(SummaryResponse.from(saved));
+  }
+
+  // ============================================================
+  // 2. FILE UPLOAD
+  // ============================================================
+
+  @PostMapping(value = "/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "Summarize uploaded file (PDF, DOCX, TXT)")
+  public ResponseEntity<SummaryResponse> summarizeFile(
+          @RequestParam("file") MultipartFile file) throws Exception {
+
+    if (file == null || file.isEmpty()) {
+      throw new InvalidInputException("File cannot be empty");
     }
 
-    // ============================================================
-    // 3. URL SUMMARIZATION
-    // ============================================================
+    SavedSummary saved = summarizationService.summarizeFromFile(file);
+    return ResponseEntity.status(HttpStatus.CREATED).body(SummaryResponse.from(saved));
+  }
 
-    @PostMapping(value = "/url", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Summarize content from URL")
-    public ResponseEntity<SummaryResponse> summarizeUrl(
-            @Valid @RequestBody UrlRequest request) throws IOException {
+  // ============================================================
+  // 3. URL SUMMARIZATION
+  // ============================================================
 
-        String url = request.getUrl();
+  @PostMapping(value = "/url", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "Summarize content from URL")
+  public ResponseEntity<SummaryResponse> summarizeUrl(
+          @Valid @RequestBody UrlRequest request) throws IOException {
 
-        if (url == null || url.trim().isEmpty()) {
-            throw new InvalidInputException("URL cannot be empty");
-        }
-        if (!url.startsWith("http://") && !url.startsWith("https://")) {
-            throw new InvalidInputException("URL must start with http:// or https://");
-        }
-        SavedSummary saved = summarizationService.summarizeFromUrl(url);
-        return ResponseEntity.status(HttpStatus.CREATED).body(SummaryResponse.from(saved));
+    String url = request.getUrl();
+
+    if (url == null || url.trim().isEmpty()) {
+      throw new InvalidInputException("URL cannot be empty");
+    }
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+      throw new InvalidInputException("URL must start with http:// or https://");
+    }
+    SavedSummary saved = summarizationService.summarizeFromUrl(url);
+    return ResponseEntity.status(HttpStatus.CREATED).body(SummaryResponse.from(saved));
+  }
+
+  // ============================================================
+  // 4. STREAMING
+  // ============================================================
+
+  @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  @Operation(summary = "Stream summary in real-time")
+  public SseEmitter summarizeStream(
+          @RequestParam String text,
+          @RequestParam(defaultValue = "SHORT") SummaryLength length) {
+
+    if (text == null || text.trim().isEmpty()) {
+      throw new InvalidInputException("Text cannot be empty");
     }
 
-    // ============================================================
-    // 4. STREAMING
-    // ============================================================
+    SseEmitter emitter = new SseEmitter(300000L);
+    summarizationService.summarizeAsync(text, length, emitter);
+    return emitter;
+  }
 
-    @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    @Operation(summary = "Stream summary in real-time")
-    public SseEmitter summarizeStream(
-            @RequestParam String text,
-            @RequestParam(defaultValue = "SHORT") SummaryLength length) {
+  // ============================================================
+  // 5. GET ALL SUMMARIES
+  // ============================================================
+  // Handled on frontend
 
-        if (text == null || text.trim().isEmpty()) {
-            throw new InvalidInputException("Text cannot be empty");
-        }
+  // ============================================================
+  // 6. GET SPECIFIC SUMMARY
+  // ============================================================
+  // Handled on frontend
 
-        SseEmitter emitter = new SseEmitter(300000L);
-        summarizationService.summarizeAsync(text, length, emitter);
-        return emitter;
-    }
+  // ============================================================
+  // 7. DELETE SUMMARY
+  // ============================================================
+  // Handled on frontend
 
-    // ============================================================
-    // 5. GET ALL SUMMARIES
-    // ============================================================
-    // Handled on frontend
+  // ============================================================
+  // 8. FILTER BY SOURCE
+  // ============================================================
+  // Handled on frontend
 
-    // ============================================================
-    // 6. GET SPECIFIC SUMMARY
-    // ============================================================
-    // Handled on frontend
+  // ============================================================
+  // 9. STATISTICS
+  // ============================================================
 
-    // ============================================================
-    // 7. DELETE SUMMARY
-    // ============================================================
-    // Handled on frontend
+  // ============================================================
+  // HEALTH CHECK
+  // ============================================================
 
-    // ============================================================
-    // 8. FILTER BY SOURCE
-    // ============================================================
-    // Handled on frontend
-
-    // ============================================================
-    // 9. STATISTICS
-    // ============================================================
-
-    // ============================================================
-    // HEALTH CHECK
-    // ============================================================
-
-    @GetMapping("/health")
-    @Operation(summary = "Health check — confirms the API is reachable")
-    public ResponseEntity<Map<String, String>> health() {
-        return ResponseEntity.ok(Map.of(
-                "status", "ok",
-                "service", "summarizer-api"
-        ));
-    }
+  @GetMapping("/health")
+  @Operation(summary = "Health check — confirms the API is reachable")
+  public ResponseEntity<Map<String, String>> health() {
+    return ResponseEntity.ok(Map.of(
+            "status", "ok",
+            "service", "summarizer-api"
+    ));
+  }
 }
