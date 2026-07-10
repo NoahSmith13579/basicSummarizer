@@ -25,7 +25,8 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-
+      - name: Grant execute permission to gradlew
+        run: chmod +x ./gradlew
       - name: Build shaded jar
         run: ./gradlew clean shadowJar
 
