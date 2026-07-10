@@ -1,68 +1,102 @@
+import com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer
+
+
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '4.0.6'
-	id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
+    id 'org.springframework.boot' version '4.0.6'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.gradleup.shadow' version '9.3.0'
 }
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(25)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
+}
+
+tasks.withType(org.gradle.jvm.tasks.Jar).configureEach {
+    manifest {
+        attributes(
+                'Multi-Release': 'true'
+        )
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 ext {
-	set('springAiVersion', "2.0.0-M5")
+    set('springAiVersion', "2.0.0-M5")
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	//implementation 'org.springframework.boot:spring-boot-starter-webmvc'
-	implementation('org.springframework.ai:spring-ai-starter-mcp-server-webmvc') {
-		exclude group: 'org.springframework.ai', module: 'spring-ai-starter-model-openai'
-		exclude group: 'org.springframework.ai', module: 'spring-ai-openai'
-	}
-	//implementation 'org.springframework.ai:spring-ai-starter-model-openai'
-	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	//implementation 'org.springframework.ai:spring-ai-openai'
-	implementation 'org.springframework.ai:spring-ai-starter-mcp-server-webmvc'
-	runtimeOnly 'org.postgresql:postgresql'
-	implementation 'org.springframework.ai:spring-ai-starter-model-google-genai'
-	implementation "org.jsoup:jsoup:1.18.1"
-	implementation 'org.apache.tika:tika-core:3.3.0'
-	implementation 'org.apache.tika:tika-parsers-standard-package:3.3.1'
-	compileOnly 'org.projectlombok:lombok:1.18.42'
-	annotationProcessor 'org.projectlombok:lombok:1.18.42'
-	implementation("tools.jackson.core:jackson-databind:3.1.3")
-	implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
-	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'
-	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.13.0' // If using Jackson (Spring Boot)
-	implementation 'com.amazonaws:aws-java-sdk-core:1.12.700'
-	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.700'
-	implementation(platform("software.amazon.awssdk:bom:2.27.21"))
-	//implementation ('com.amazonaws.serverless:aws-serverless-java-container-springboot3:2.0.1')
-
+    //implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    //implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation('org.springframework.ai:spring-ai-starter-mcp-server-webmvc') {
+        exclude group: 'org.springframework.ai', module: 'spring-ai-starter-model-openai'
+        exclude group: 'org.springframework.ai', module: 'spring-ai-openai'
+    }
+    //implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+    //testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    //implementation 'org.springframework.ai:spring-ai-openai'
+    implementation 'org.springframework.ai:spring-ai-starter-mcp-server-webmvc'
+    //runtimeOnly 'org.postgresql:postgresql'
+    implementation 'org.springframework.ai:spring-ai-starter-model-google-genai'
+    implementation "org.jsoup:jsoup:1.18.1"
+    implementation 'org.apache.tika:tika-core:3.3.0'
+    implementation 'org.apache.tika:tika-parsers-standard-package:3.3.1'
+    compileOnly 'org.projectlombok:lombok:1.18.42'
+    annotationProcessor 'org.projectlombok:lombok:1.18.42'
+    implementation("tools.jackson.core:jackson-databind:3.1.3")
+    //implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
+    //runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'
+    //runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.13.0' // If using Jackson (Spring Boot)
+    //implementation 'com.amazonaws:aws-java-sdk-core:1.12.700'
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.700'
+    implementation(platform("software.amazon.awssdk:bom:2.27.21"))
+    implementation 'com.amazonaws.serverless:aws-serverless-java-container-core:3.0.2'
+    implementation 'com.amazonaws.serverless:aws-serverless-java-container-springboot4:3.0.2'
+    implementation("com.amazonaws:aws-lambda-java-events:3.11.4")
+    implementation("com.amazonaws:aws-lambda-java-core:1.2.3")
 }
 
 dependencyManagement {
-	imports {
-		mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
-	}
+    imports {
+        mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+    }
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
+}
+
+shadowJar {
+    zip64 true
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
+    mergeServiceFiles()
+    transform(AppendingTransformer) {
+        resource = 'META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports'
+    }
+    transform(AppendingTransformer) {
+        resource = 'META-INF/spring.factories'
+    }
 }
