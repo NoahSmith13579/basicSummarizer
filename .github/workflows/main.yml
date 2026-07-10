@@ -1,0 +1,81 @@
+name: Deploy to Lambda
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:  # allows manual trigger from GitHub UI too
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: summarizer-backend
+  LAMBDA_FUNCTION: summarizer-backend
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build shaded jar
+        run: ./gradlew clean shadowJar
+
+      - name: Verify autoconfiguration imports merged correctly
+        run: |
+          jar tf build/libs/*-all.jar | grep -q "META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports" || (echo "Imports file missing!" && exit 1)
+          mkdir -p /tmp/jarcheck
+          cd /tmp/jarcheck
+          jar xf $GITHUB_WORKSPACE/build/libs/*-all.jar META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
+          LINE_COUNT=$(wc -l < META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports)
+          echo "Autoconfiguration imports: $LINE_COUNT lines"
+          if [ "$LINE_COUNT" -lt 10 ]; then
+            echo "Suspiciously few autoconfiguration entries — merge may have failed"
+            exit 1
+          fi
+          grep -q "genai" META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports || (echo "Google GenAI autoconfiguration missing!" && exit 1)
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push image
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+        run: |
+          docker buildx build --platform linux/amd64 --provenance=false --sbom=false \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }} --load .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }}
+
+      - name: Deploy to Lambda
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+        run: |
+          aws lambda update-function-code \
+            --function-name $LAMBDA_FUNCTION \
+            --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }} \
+            --region $AWS_REGION
+
+      - name: Wait for deployment to complete
+        run: |
+          aws lambda wait function-updated --function-name $LAMBDA_FUNCTION --region $AWS_REGION
+
+      - name: Confirm deployment
+        run: |
+          aws lambda get-function --function-name $LAMBDA_FUNCTION --region $AWS_REGION \
+            --query '{Status:Configuration.LastUpdateStatus,Digest:Configuration.CodeSha256}'
