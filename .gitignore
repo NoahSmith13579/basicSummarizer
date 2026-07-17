@@ -1,0 +1,83 @@
+############################
+# Java / Spring Boot
+############################
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Spring Boot dev tools
+.spring-boot-devtools.properties
+
+# Logs
+*.log
+
+# JVM crash logs
+hs_err_pid*
+replay_pid*
+
+############################
+# Node / React / Vite / TypeScript
+############################
+
+# Dependencies
+node_modules/
+
+# Vite build output
+dist/
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# TypeScript
+*.tsbuildinfo
+
+# Vite cache
+.vite/
+
+# React build output (if using CRA inside project)
+build/
+
+############################
+# IDE / Editor
+############################
+
+# IntelliJ
+.idea/
+*.iml
+out/
+
+# VS Code
+.vscode/
+.history/
+
+############################
+# OS Files
+############################
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Misc
+HELP.md
+classpath-utf8.txt
+classpath.txt
+*.yaml
+*.yml
+eslint.config.js
+summarizer.jsx
+SummarizerApp.tsx
