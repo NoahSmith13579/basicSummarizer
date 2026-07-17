@@ -1,25 +1,19 @@
 package com.example.summarizer.model;
 
-//import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
-// TODO: Do I need to manually implement password hashing?
 
-//@Entity
-//@Table(name= "\"user\"")
 public class User {
-  //@Id
-  //@GeneratedValue(strategy = GenerationType.IDENTITY)
-  //@Column(name= "user_id")
+
   private Long id;
-  //@Column(name = "username")
+
   private String username;
-  //@Column(name = "email")
+
   private String email;
-  //@Column(name = "password")
+
   private String password;
-  //@Column(name = "created_at")
+
   private LocalDateTime createdAt;
 
   public User() {

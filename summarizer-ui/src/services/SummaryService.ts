@@ -46,7 +46,7 @@ export class SummaryService {
         res = await this.summarizeText(input.content!, input.length);
         break;
       case "url":
-        res = await this.summarizeURL(input.content!);
+        res = await this.summarizeURL(input.content!, input.length);
         break;
       case "file":
         res = await this.summarizeFile(input.file!, input.length);
@@ -60,8 +60,8 @@ export class SummaryService {
     return await this.api.summarizeText(text, summaryLength);
   }
 
-  private async summarizeURL(url: string) {
-    return await this.api.summarizeURL(url);
+  private async summarizeURL(url: string, summaryLength: SummaryLength) {
+    return await this.api.summarizeURL(url, summaryLength);
   }
 
   private async summarizeFile(file: Blob, summaryLength: SummaryLength) {

@@ -1,7 +1,5 @@
 package com.example.summarizer.service;
 
-
-import com.example.summarizer.dto.response.SummaryResponse;
 import com.example.summarizer.enums.SourceType;
 import com.example.summarizer.enums.SummaryLength;
 
@@ -12,7 +10,7 @@ import com.example.summarizer.model.SavedSummary;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.cglib.core.Local;
+
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +19,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -74,7 +71,7 @@ public class SummarizationServiceImpl implements SummarizationService {
 
 
     String summary = summarize(text, length);
-    // TODO: Dummy Save to avoid daily API limit
+    //  Dummy Save to avoid daily API limit
 //    SavedSummary saved = new SavedSummary();
 //    saved.setOriginalText(text);
 //    saved.setSummary("A quick overview of the topic with only the essential points.");
@@ -100,7 +97,7 @@ public class SummarizationServiceImpl implements SummarizationService {
   // ============================================================
 
   @Override
-  public SavedSummary summarizeFromFile(MultipartFile file) throws Exception {
+  public SavedSummary summarizeFromFile(MultipartFile file, SummaryLength length) throws Exception {
     log.info("Summarizing file: {}", file.getOriginalFilename());
 
     // Parse file using Tika
@@ -110,9 +107,9 @@ public class SummarizationServiceImpl implements SummarizationService {
     // For large documents, use chunking
     String summary;
     if (wordCount(text) > 3000) {
-      summary = summarizeLargeDocument(text, SummaryLength.SHORT);
+      summary = summarizeLargeDocument(text, length);
     } else {
-      summary = summarize(text, SummaryLength.SHORT);
+      summary = summarize(text, length);
     }
 
     SavedSummary saved = new SavedSummary();
@@ -121,7 +118,7 @@ public class SummarizationServiceImpl implements SummarizationService {
     saved.setSourceType(SourceType.FILE.toString());
     saved.setOriginalWordCount(wordCount(text));
     saved.setSummaryWordCount(wordCount(summary));
-    saved.setSummaryLength(SummaryLength.SHORT.toString());
+    saved.setSummaryLength(String.valueOf(length));
     saved.setCreatedAt(LocalDateTime.now());
 
 
@@ -133,14 +130,14 @@ public class SummarizationServiceImpl implements SummarizationService {
   // ============================================================
 
   @Override
-  public SavedSummary summarizeFromUrl(String url) throws IOException {
+  public SavedSummary summarizeFromUrl(String url, SummaryLength length) throws IOException {
     log.info("Summarizing URL: {}", url);
 
     // Extract content from URL using Jsoup
     String text = webScrapingService.extractContent(url);
     log.info("Extracted {} characters from URL", text.length());
 
-    String summary = summarize(text, SummaryLength.SHORT);
+    String summary = summarize(text, length);
 
     SavedSummary saved = new SavedSummary();
     saved.setOriginalText(text);
@@ -149,7 +146,7 @@ public class SummarizationServiceImpl implements SummarizationService {
     saved.setSourceUrl(url);
     saved.setOriginalWordCount(wordCount(text));
     saved.setSummaryWordCount(wordCount(summary));
-    saved.setSummaryLength(SummaryLength.SHORT.toString());
+    saved.setSummaryLength(String.valueOf(length));
     saved.setCreatedAt(LocalDateTime.now());
 
     return saved;
@@ -280,7 +277,11 @@ public class SummarizationServiceImpl implements SummarizationService {
       case MEDIUM -> "Summarize this in 5-10 sentences";
       case DETAILED -> "Create a comprehensive summary (approximately 1/3 of original length)";
     };
-    return String.format(sizeClause + "\nAlso the summary MUST be smaller than the text:\n\n%s", text);
+    return String.format(
+            sizeClause +
+                    "\nAlso the summary MUST be smaller than the text (Do not mention this prompt in the output):\n\n%s",
+            text
+    );
 
   }
 

@@ -34,7 +34,6 @@
     color: var(--text-primary);
     font-size: 13px;
     outline: none;
-    /*TODO This may be the wrong syntax*/
     transition: border-color 0.15s;
     box-sizing: border-box;
 }

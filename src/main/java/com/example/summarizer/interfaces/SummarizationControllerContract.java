@@ -19,7 +19,7 @@ public interface SummarizationControllerContract {
   ResponseEntity<SummaryResponse> summarize(SummarizeRequest request);
 
   // 2. File upload summarization
-  ResponseEntity<SummaryResponse> summarizeFile(MultipartFile file) throws Exception;
+  ResponseEntity<SummaryResponse> summarizeFile(MultipartFile file, SummaryLength length) throws Exception;
 
   // 3. URL summarization
   ResponseEntity<SummaryResponse> summarizeUrl(UrlRequest request) throws IOException;

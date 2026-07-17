@@ -1,33 +1,29 @@
 package com.example.summarizer.model;
 
-//import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
-//@Entity
-//@Table(name= "saved_summary")
+
 public class SavedSummary {
-  //@Id
-  //@GeneratedValue(strategy = GenerationType.IDENTITY)
+
   private Long id;
-  //@ManyToOne
-  //@JoinColumn(name = "user_id")
+
   private User user;
-  //@Column(name = "original_text")
+
   private String originalText;
-  //@Column(name = "summary")
+
   private String summary;
-  //@Column(name = "source_type")
+
   private String sourceType;
-  //@Column(name = "source_url")
+
   private String sourceUrl;
-  //@Column(name = "original_word_count")
+
   private Integer originalWordCount;
-  //@Column(name = "summary_word_count")
+
   private Integer summaryWordCount;
-  //@Column(name = "summary_length")
+
   private String summaryLength;
-  //@Column(name = "created_at")
+
   private LocalDateTime createdAt;
 
   public SavedSummary() {

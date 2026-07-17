@@ -104,13 +104,13 @@ public class SummarizationController implements SummarizationControllerContract 
   @PostMapping(value = "/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(summary = "Summarize uploaded file (PDF, DOCX, TXT)")
   public ResponseEntity<SummaryResponse> summarizeFile(
-          @RequestParam("file") MultipartFile file) throws Exception {
+          @RequestParam("file") MultipartFile file, @RequestParam("summaryLength") SummaryLength length) throws Exception {
 
     if (file == null || file.isEmpty()) {
       throw new InvalidInputException("File cannot be empty");
     }
 
-    SavedSummary saved = summarizationService.summarizeFromFile(file);
+    SavedSummary saved = summarizationService.summarizeFromFile(file, length);
     return ResponseEntity.status(HttpStatus.CREATED).body(SummaryResponse.from(saved));
   }
 
@@ -131,7 +131,7 @@ public class SummarizationController implements SummarizationControllerContract 
     if (!url.startsWith("http://") && !url.startsWith("https://")) {
       throw new InvalidInputException("URL must start with http:// or https://");
     }
-    SavedSummary saved = summarizationService.summarizeFromUrl(url);
+    SavedSummary saved = summarizationService.summarizeFromUrl(url, request.getSummaryLength());
     return ResponseEntity.status(HttpStatus.CREATED).body(SummaryResponse.from(saved));
   }
 
@@ -153,35 +153,7 @@ public class SummarizationController implements SummarizationControllerContract 
     summarizationService.summarizeAsync(text, length, emitter);
     return emitter;
   }
-
-  // ============================================================
-  // 5. GET ALL SUMMARIES
-  // ============================================================
-  // Handled on frontend
-
-  // ============================================================
-  // 6. GET SPECIFIC SUMMARY
-  // ============================================================
-  // Handled on frontend
-
-  // ============================================================
-  // 7. DELETE SUMMARY
-  // ============================================================
-  // Handled on frontend
-
-  // ============================================================
-  // 8. FILTER BY SOURCE
-  // ============================================================
-  // Handled on frontend
-
-  // ============================================================
-  // 9. STATISTICS
-  // ============================================================
-
-  // ============================================================
-  // HEALTH CHECK
-  // ============================================================
-
+  
   @GetMapping("/health")
   @Operation(summary = "Health check — confirms the API is reachable")
   public ResponseEntity<Map<String, String>> health() {

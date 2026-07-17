@@ -6,8 +6,8 @@ export class ApiSummaryRepository {
     return clientAPI.post("summarize", { text, summaryLength });
   }
 
-  async summarizeURL(url: string) {
-    return clientAPI.post("summarize/url", { url });
+  async summarizeURL(url: string, summaryLength: SummaryLength) {
+    return clientAPI.post("summarize/url", { url, summaryLength });
   }
 
   async summarizeFile(file: Blob, summaryLength: SummaryLength) {
