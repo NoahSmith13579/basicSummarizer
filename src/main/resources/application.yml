@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: summarizer
+  ai:
+    google:
+      genai:
+        api-key: ${GOOGLE_API_KEY}
+        # https://aistudio.google.com/app/api-keys?project=gen-lang-client-0787294623
+        chat:
+          options:
+            model: gemini-2.5-flash
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+debug: true

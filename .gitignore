@@ -76,8 +76,8 @@ Thumbs.db
 HELP.md
 classpath-utf8.txt
 classpath.txt
-*.yaml
-*.yml
+application-local.yaml
+application-local.yml
 eslint.config.js
 summarizer.jsx
 SummarizerApp.tsx
