@@ -78,6 +78,10 @@ classpath-utf8.txt
 classpath.txt
 application-local.yaml
 application-local.yml
+application-prod.yml
+layers.yml
 eslint.config.js
 summarizer.jsx
 SummarizerApp.tsx
+bin/
+*.ps1

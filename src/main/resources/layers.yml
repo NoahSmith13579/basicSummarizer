@@ -1,0 +1,15 @@
+# Lambda Layers Configuration
+# See: https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html
+
+layers:
+  - name: java-lambda-runtime
+    path: /layers/java-runtime/
+    content:
+      - aws-java-sdk-lambda
+      - aws-java-sdk-core
+      - commons-lang3
+  - name: spring-boot-lambda
+    path: /layers/spring-runtime/
+    content:
+      - spring-boot
+      - spring-security
