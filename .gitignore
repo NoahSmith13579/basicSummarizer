@@ -81,3 +81,5 @@ application-local.yml
 eslint.config.js
 summarizer.jsx
 SummarizerApp.tsx
+bin/
+*.ps1
